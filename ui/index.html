@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Packing Calculator</title>
+</head>
+<body>
+<h1>Packing Sizes</h1>
+<form id="packForm">
+  <input id="sizes" placeholder="e.g. 10,20,50" required />
+  <button type="submit">Submit Pack Sizes</button>
+</form>
+
+<h1>Calculate Packs for Order</h1>
+<form id="calcForm">
+  <input id="amount" type="number" placeholder="Enter item count" required />
+  <button type="submit">Calculate</button>
+</form>
+
+<h2>Result</h2>
+<pre id="result"></pre>
+
+<script>
+  // Загружает текущие pack sizes из /pack-sizes и вставляет их в input
+  async function loadPackSizes() {
+    try {
+      const res = await fetch('/pack-sizes');
+      const data = await res.json();
+      document.getElementById('sizes').value = data.join(',');
+    } catch (err) {
+      console.error('Failed to load pack sizes:', err);
+    }
+  }
+
+  // Обработчик сохранения новых pack sizes
+  document.getElementById('packForm').onsubmit = async e => {
+    e.preventDefault();
+    const val = document.getElementById('sizes').value;
+    const sizes = val.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+    await fetch('/pack-sizes', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ sizes })
+    });
+    alert('Pack sizes updated!');
+    await loadPackSizes(); // Обновляем input после POST
+  };
+
+  // Обработчик расчёта упаковки
+  document.getElementById('calcForm').onsubmit = async e => {
+    e.preventDefault();
+    const amount = parseInt(document.getElementById('amount').value, 10);
+    const res = await fetch('/calculate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ amount })
+    });
+    const data = await res.json();
+    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+  };
+
+  // Загружаем pack sizes при открытии страницы
+  window.onload = loadPackSizes;
+</script>
+</body>
+</html>
