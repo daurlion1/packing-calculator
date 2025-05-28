@@ -61,6 +61,26 @@ func TestCalculatePacks(t *testing.T) {
 			amount:   12001,
 			expected: map[int]int{5000: 2, 2000: 1, 250: 1},
 		},
+
+		// High-volume tests
+		{
+			name:     "Large order: 100000 items",
+			sizes:    []int{250, 500, 1000, 2000, 5000},
+			amount:   100000,
+			expected: map[int]int{5000: 20},
+		},
+		{
+			name:     "Large uneven order: 100001 items",
+			sizes:    []int{250, 500, 1000, 2000, 5000},
+			amount:   100001,
+			expected: map[int]int{5000: 20, 250: 1},
+		},
+		{
+			name:     "Very large order: 999999 items",
+			sizes:    []int{250, 500, 1000, 2000, 5000},
+			amount:   999999,
+			expected: map[int]int{5000: 200},
+		},
 	}
 
 	for _, tt := range tests {
@@ -71,7 +91,7 @@ func TestCalculatePacks(t *testing.T) {
 					tt.amount, tt.sizes, tt.expected, result)
 			}
 
-			// Additional check: total item count should be >= requested amount
+			// Ensure total item count is >= requested amount
 			total := 0
 			for size, count := range result {
 				total += size * count
@@ -84,7 +104,6 @@ func TestCalculatePacks(t *testing.T) {
 }
 
 func TestEdgeCases(t *testing.T) {
-	// Test with unsorted pack sizes
 	t.Run("Unsorted pack sizes", func(t *testing.T) {
 		result := CalculatePacks([]int{1000, 250, 500}, 751)
 		expected := map[int]int{1000: 1}
@@ -93,7 +112,6 @@ func TestEdgeCases(t *testing.T) {
 		}
 	})
 
-	// Test with negative order amount
 	t.Run("Negative amount", func(t *testing.T) {
 		result := CalculatePacks([]int{10, 20}, -5)
 		if len(result) != 0 {
