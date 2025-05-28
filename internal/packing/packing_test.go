@@ -12,7 +12,7 @@ func TestCalculatePacks(t *testing.T) {
 		amount   int
 		expected map[int]int
 	}{
-		// Базовые случаи
+		// Basic cases
 		{
 			name:     "Order exact pack size (single)",
 			sizes:    []int{10, 20, 50},
@@ -26,7 +26,7 @@ func TestCalculatePacks(t *testing.T) {
 			expected: map[int]int{50: 1, 20: 1},
 		},
 
-		// Граничные случаи
+		// Boundary cases
 		{
 			name:     "Order less than smallest pack",
 			sizes:    []int{10, 20, 50},
@@ -40,14 +40,15 @@ func TestCalculatePacks(t *testing.T) {
 			expected: map[int]int{},
 		},
 
-		// Сложные случаи
+		// Complex combinations
 		{
 			name:     "Requires multiple smallest packs",
 			sizes:    []int{3, 5},
 			amount:   7,
 			expected: map[int]int{5: 1, 3: 1},
 		},
-		// Реальные данные из задания
+
+		// Real examples from the task
 		{
 			name:     "Case from task: 251 items",
 			sizes:    []int{250, 500, 1000, 2000, 5000},
@@ -70,7 +71,7 @@ func TestCalculatePacks(t *testing.T) {
 					tt.amount, tt.sizes, tt.expected, result)
 			}
 
-			// Дополнительная проверка: суммарное количество >= заказанного
+			// Additional check: total item count should be >= requested amount
 			total := 0
 			for size, count := range result {
 				total += size * count
@@ -83,7 +84,7 @@ func TestCalculatePacks(t *testing.T) {
 }
 
 func TestEdgeCases(t *testing.T) {
-	// Тест с неупорядоченными размерами
+	// Test with unsorted pack sizes
 	t.Run("Unsorted pack sizes", func(t *testing.T) {
 		result := CalculatePacks([]int{1000, 250, 500}, 751)
 		expected := map[int]int{1000: 1}
@@ -92,7 +93,7 @@ func TestEdgeCases(t *testing.T) {
 		}
 	})
 
-	// Тест с отрицательным количеством
+	// Test with negative order amount
 	t.Run("Negative amount", func(t *testing.T) {
 		result := CalculatePacks([]int{10, 20}, -5)
 		if len(result) != 0 {
